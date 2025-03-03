@@ -20,10 +20,12 @@ app.post('/sse', (req, res) => {
 
   let times = 7;
   const interval = setInterval(() => {
-    const data = { msg: msg + ' ' + times, state: times === 0 ? 'done' : 'pending' };
-    res.write(`data: ${JSON.stringify(data)}\n\n`);
-    if (times === 0) {
+    if(times > 0){
+      const data = { msg: msg + ' ' + times, status: 'complete' };
+      res.write(`data: ${JSON.stringify(data)}\n\n`);
+    }else if (times === 0) {
       clearInterval(interval);
+      res.write(`data: [DONE]`);
       res.end();
     }
     times--;
