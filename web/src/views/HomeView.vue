@@ -97,7 +97,7 @@ export default {
         })
       })
 
-      source.addEventListener("open", (e) => {
+      source.addEventListener("open", () => {
         this.msgArr.push({
             type: 'assist',
             msg: '',

@@ -67,13 +67,16 @@
         </slot>
       </div>
     </div>
+<chatContant></chatContant>
+
   </div>
 </template>
 
 <script>
+import chatContant from './comps/chatContant.vue'
 
 export default {
-  components: {},
+  components: {chatContant},
   props: {
     chats: {
       type: Array,
@@ -249,7 +252,7 @@ export default {
       console.log('hitClickHandle');
       this.$emit('hitClickHandle', item)
     },
-    hotKeyHandle(type, e) {
+    hotKeyHandle(type) {
       if(this.lastChat.status && ['loading', 'incomplete'].includes(this.lastChat.status)) {return}
 
       if(type === 'enter') {
