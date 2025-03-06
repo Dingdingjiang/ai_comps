@@ -1,111 +1,111 @@
 <template>
-  <div ref="markdown-container">
-    <div class="option_bar">
-      <span @click="copyCodeHandle">{{ copyBtnText }}</span>
-    </div>
-    <div :class="`markdown-content ${'markdown-theme-' + theme}`">
-       <span v-html="html"> </span>
-       <p>以下是一个 Semi 代码的使用示例：</p>
-<pre><code class="hljs language-jsx"><span class="hljs-keyword">import</span> <span class="hljs-title class_">React</span> <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;react&#x27;</span>;
-<span class="hljs-keyword">import</span> { <span class="hljs-title class_">Button</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;@douyinfe/semi-ui&#x27;</span>;
-
-<span class="hljs-keyword">const</span> <span class="hljs-title function_">MyComponent</span> = (<span class="hljs-params"></span>) =&gt; {
-  <span class="hljs-keyword">return</span> (
-    <span class="language-xml"><span class="hljs-tag">&lt;<span class="hljs-name">Button</span>&gt;</span>Click me<span class="hljs-tag">&lt;/<span class="hljs-name">Button</span>&gt;</span></span>
- );
-};
-<span class="hljs-keyword">export</span> <span class="hljs-keyword">default</span> <span class="hljs-title class_">MyComponent</span>;
-</code></pre>
+  <div ref="markdown-container" class="markdown-container">
+    <div :class="`markdown-content ${'markdown-theme-' + theme}`" v-html="html"  v-copy-code>
     </div>
   </div>
 </template>
 
 <script>
-const {Marked} = require('marked')
+import { Marked } from 'marked'
 import hljs from 'highlight.js';
+import DOMPurify from 'dompurify';
 import { markedHighlight } from "marked-highlight";
-import sanitizeHtml from 'sanitize-html';
+
+const postprocess = function (code) {
+  return DOMPurify.sanitize(code)
+}
+
 const marked = new Marked(
   markedHighlight({
-	emptyLangClass: 'hljs',
+    emptyLangClass: 'hljs',
     langPrefix: 'hljs language-',
-    highlight(code, lang, info) {
+    highlight(code, lang) {
       const language = hljs.getLanguage(lang) ? lang : 'plaintext';
-      return hljs.highlightAuto(code).value;
+      return hljs.highlight(code, { language }).value;
     }
   })
 );
+// 代码块增加复制按钮
+const renderer = {
+  code({text, lang}) {
+    return `<div class='code-block'><div class="code-header"><span class="code-lang">${lang}</span><span class="copy-code">copy</span></div><div class='code-content'><pre style="margin: 0px"><code class="hljs language-${lang}">${text}</code></pre></div></div>` }
+};
+
+marked.use({ hooks: { postprocess } , renderer });
 
 export default {
   components: {},
-  name: 'markdownBox',
+  name: 'MarkdownBox',
   props: {
     initValue: {
       type: String,
       default: ''
-    },
-    markedOptions: {
-      default: ()=>({})
-    },
-    theme: {
-      type: String,
-      default: 'light'
-    },
-    copyCode: {
-      type: Boolean,
-      default: true
-    },
-    copyBtnText: {
-      type: String,
-      default: 'Copy'
     }
   },
-  data () {
+  data() {
     return {
       html: ''
     }
   },
-  computed: {},
   watch: {
-    initValue() {
-      this.translateMarkdown()
+    initValue:{
+      handler(newValue, oldValue){
+        this.$nextTick(()=>{
+          if(newValue){
+            this.html = this.translateMarkdown(newValue+(oldValue || ''))
+          }
+        })
+      },
+      immediate: true
     }
   },
-  created () {
+  created() {
 
   },
-  mounted () {
-    this.translateMarkdown()
+  mounted() {
   },
   methods: {
-    translateMarkdown(){
-      let html = marked.parse(this.initValue)
-                // if (this.copyCode) {
-                //     html = html.replace(/<pre>/g, '<div class="code-block"><span class="copy-code">' + this.copyBtnText + '</span><pre>').replace(/<\/pre>/g, '</pre></div>');
-                // }
-                this.html = hljs.highlightAuto(html).value;
-                // this.html = sanitizeHtml(html)
-    },
-    copyCodeHandle(code) {
-      console.log('copyCode', this.initialValue);
-      this.$emit('copy', this.initValue)
+    translateMarkdown(markdTxt) {
+      if(!markdTxt){ return markdTxt }
+      return marked.parse(markdTxt)
     }
   }
 }
 </script>
 
 <style lang='scss' scoped>
-.markdown-container{
+.markdown-container {
   position: relative;
+  padding-top: 10px;
+
+  &:hover {
+    .option_bar {
+      .copy_btn {
+        visibility: visible;
+      }
+    }
+  }
 }
-.option_bar{
+
+.option_bar {
   position: absolute;
   top: 0;
+  right: 0;
   background-color: transparent;
   display: flex;
   justify-items: end;
-  &:hover{
+
+  &:hover {
     cursor: pointer;
+  }
+
+  .copy_btn {
+    font-size: 12px;
+    visibility: hidden;
+
+    &:hover {
+      color: blue;
+    }
   }
 }
 
@@ -113,5 +113,41 @@ export default {
   white-space: pre-wrap;
   -webkit-box: inline-block;
   text-align: left;
+}
+
+</style>
+<style lang="scss">
+.code-block{
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  border-radius: 8px;
+  height: fit-content;
+  .code-header{
+    display: flex;
+    justify-content: space-between;
+    width: calc(100% - 10px);
+    font-size: 12px;
+    padding: 5px;
+    background-color: #24262b;
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
+  }
+  .code-content{
+    code{
+      border-bottom-left-radius: 8px;
+      border-bottom-right-radius: 8px;
+    }
+  }
+  .code-lang{
+    color: #FFF;
+  }
+  .copy-code {
+    color: red;
+    &:hover{
+      color: blue;
+      cursor: pointer;
+    }
+  }
 }
 </style>

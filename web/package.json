@@ -10,6 +10,7 @@
   "dependencies": {
     "axios": "^0.21.1",
     "core-js": "^3.8.3",
+    "dompurify": "^3.2.4",
     "element-ui": "^2.15.14",
     "highlight.js": "^11.11.1",
     "marked": "^15.0.7",

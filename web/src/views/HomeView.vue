@@ -17,13 +17,6 @@ export default {
     return {
       msgArr: [
         {
-          type: 'user',
-          role: 'user',
-          msg: 'hello',
-          content: 'hello',
-          status: 'complete'
-        },
-        {
           type: 'assist',
           role: 'assist',
           msg: 'Hello, how can I help you?',
@@ -40,8 +33,8 @@ export default {
         {
           type: 'assist',
           role: 'assist',
-          msg: 'Hello, how can I help you?',
-          content: 'Hello, how can I help you?',
+          msg: `以下是一个 Semi 代码的使用示例：\n\`\`\`jsx \nimport React from 'react';\nimport { Button } from '@douyinfe/semi-ui';\n\nconst MyComponent = () => {\n  return (\n    <Button>Click me</Button>\n );\n};\nexport default MyComponent;\n\`\`\`\n`,
+          content: `以下是一个 Semi 代码的使用示例：\`\`\`jsx \nimport React from 'react';\nimport { Button } from '@douyinfe/semi-ui';\n\nconst MyComponent = () => {\n  return (\n    <Button>Click me</Button>\n );\n};\nexport default MyComponent;\n\`\`\`\n`,
           status: 'complete'
         }
       ],
@@ -101,7 +94,7 @@ export default {
         this.msgArr.push({
             type: 'assist',
             msg: '',
-            status: 'incomplete'
+            status: 'loading'
           })
       });
 

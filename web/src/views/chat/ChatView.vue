@@ -10,7 +10,8 @@
                 loading...
               </template>
               <template v-else>
-                {{ item.msg }}
+                <!-- {{ item.msg }} -->
+                <chatContant :content="item.msg"></chatContant>
               </template>
               <template v-if="item.type === 'assist' && item.status === 'incomplete'">
                 <i class="el-icon-loading"></i>
@@ -40,7 +41,7 @@
           </div>
         </div>
       </div>
-      <div class="scroll-btn" v-if="isShowScrollBtn || !isAtBottom" @click="scrollToBottom">
+      <div class="scroll-btn" v-if="isShowScrollBtn && !isAtBottom" @click="scrollToBottom">
         <i class="el-icon-caret-bottom"></i>
       </div>
       <div class="stop-generate-btn" v-if="isShowStopGenerate && lastChat.status === 'incomplete'">
@@ -67,7 +68,7 @@
         </slot>
       </div>
     </div>
-<chatContant></chatContant>
+<!-- <chatContant></chatContant> -->
 
   </div>
 </template>
@@ -148,7 +149,7 @@ export default {
         }
       },
       isAtBottom: false,
-      isShowScrollBtn: true,
+      isShowScrollBtn: false,
     }
   },
   computed: {
@@ -194,10 +195,10 @@ export default {
       // const offsetHeight = scrollContainer.offsetHeight;
 
       // 判断是否滚动到底部
-      this.isAtBottom = (scrollTop + clientHeight) >= (scrollHeight); // 10 为误差值
+      this.isAtBottom = (scrollTop + clientHeight) >= (scrollHeight-10); // 10 为误差值
 
-      // 判断是否显示“返回顶部”按钮
-      this.isShowScrollBtn = scrollTop >= 100; // 滚动超过 100px 时显示
+      // 判断是否显示“返回底部”按钮
+      this.isShowScrollBtn = scrollTop >= 0; // 滚动超过 100px 时显示
     },
     setScroolHandle(){
       this.$nextTick(()=>{
@@ -390,6 +391,7 @@ export default {
   display: flex;
   align-items: center;
   justify-content: center;
+  background-color: #FFF;
   :hover{
     cursor: pointer;
   }
@@ -406,6 +408,7 @@ export default {
   display: flex;
   align-items: center;
   justify-content: center;
+  background-color: #FFF;
   :hover{
     cursor: pointer;
   }
